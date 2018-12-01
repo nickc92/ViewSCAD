@@ -21,7 +21,7 @@ jupyter lab build
 See the [OpenSCAD](https://openscad.org) and [SolidPython](https://github.com/SolidCode/SolidPython) pages for how to use these languages to represent geometric objects.
 
 The following shows how to use ViewSCAD to render a SolidPython object in Jupyter:
-![solidpython example](images/solidpython_example.png)
+![solidpython example](https://github.com/nickc92/ViewSCAD/blob/master/images/solidpython_example.png)
 
 ViewSCAD attempts to locate your openscad executable, based on your platform, but failing that, you can set the `OPENSCAD_EXEC` environment variable to point at your `openscad` command-line executable, or pass it in the constructor of the renderer:
 ```
