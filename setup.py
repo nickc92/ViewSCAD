@@ -20,23 +20,23 @@ def install_jupyter_extensions():
 class CustomInstallCommand(install):
     def run(self):
         install.run(self)
-        install_jupyter_extensions()
+#        install_jupyter_extensions()
 
 setup(
-    name='jupyter_openscad',
+    name='viewscad',
     version='0.1.0',
     description='Jupyter renderer for the OpenSCAD & SolidPython constructive solid geometry systems',
     author='Nick Choly',
     author_email="nickcholy@gmail.com",
-    url='https://github.com/nickc92/JupyterOpenSCAD',
-    py_modules=['jupyter_openscad'],
+    url='https://github.com/nickc92/ViewSCAD',
+    py_modules=['viewscad'],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "Environment :: Other Environment",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+        "License :: OSI Approved :: MIT License", 
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Scientific/Engineering :: Mathematics",
@@ -45,5 +45,6 @@ setup(
         'install': CustomInstallCommand,
     },
     packages=find_packages(),
-    install_requires=['jupyterlab', 'ipywidgets', 'pythreejs', 'solidpython'],
+    install_requires=['jupyter', 'jupyterlab', 'ipywidgets', 'pythreejs', 'solidpython'],
+    setup_requires=['jupyter', 'jupyterlab', 'ipywidgets', 'pythreejs', 'solidpython'],
 )

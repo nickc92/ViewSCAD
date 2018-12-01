@@ -9,7 +9,7 @@ import math as pymath
 import os
 import time
 import subprocess
-from pythreejs import *
+import pythreejs as pjs
 from IPython.display import display, SVG
 
 
@@ -17,7 +17,7 @@ OBJ_COLOR = '#f7d62c'
 BACKGROUND_COLOR = '#ffffff'
 DEFAULT_FN = 20
 
-class JupyterRenderer:
+class Renderer:
     '''This class will render an OpenSCAD object within a jupyter notebook.
     The 'pythreejs' module must be installed (see directions a
     https://github.com/jupyter-widgets/pythreejs).
@@ -136,9 +136,9 @@ class JupyterRenderer:
                 grid_cols.extend([axis_cols[axis3] for vert in verts])
 
 
-        lines_geom = Geometry(vertices=grid_verts, colors =grid_cols)
-        lines = LineSegments(geometry=lines_geom,
-                 material=LineBasicMaterial(linewidth=5, transparent=True,
+        lines_geom = pjs.Geometry(vertices=grid_verts, colors =grid_cols)
+        lines = pjs.LineSegments(geometry=lines_geom,
+                 material=pjs.LineBasicMaterial(linewidth=5, transparent=True,
                  opacity=0.5, dashSize=10,
                  gapSize=10, vertexColors='VertexColors'),
                  type='LinePieces')
@@ -185,25 +185,31 @@ class JupyterRenderer:
             self.render_openscad_str(in_obj, **kw)
     
     def render_openscad_str(self, openscad_str, **kw):
-        if self.openscad_tmp_dir is not None:
-            self.tmp_dir = self.openscad_tmp_dir
+        do_tmp_file = True
+        if 'outfile' in kw:
+            do_tmp_file = False
+            stl_out_file = kw['outfile']
         else:
-            self.tmp_dir = tempfile.mkdtemp()
-        self.saved_umask = os.umask(0o077)
+            if self.openscad_tmp_dir is not None:
+                self.tmp_dir = self.openscad_tmp_dir
+            else:
+                self.tmp_dir = tempfile.mkdtemp()
+            self.saved_umask = os.umask(0o077)
 
-        stl_tmp_file = os.path.join(self.tmp_dir, 'tmp.stl')
+            stl_out_file = os.path.join(self.tmp_dir, 'tmp.stl')
         
         try:
             kw['rough'] = True
-            self.render_to_stl_file(openscad_str, stl_tmp_file, **kw)
-            self._render_stl(stl_tmp_file)
+            self.render_to_stl_file(openscad_str, stl_out_file, **kw)
+            self._render_stl(stl_out_file)
         except Exception as e:
             raise e
         finally:
-            if os.path.isfile(stl_tmp_file):
-                os.remove(stl_tmp_file)
-            if self.openscad_tmp_dir is not None:
-                os.rmdir(self.tmp_dir)
+            if do_tmp_file:
+                if os.path.isfile(stl_tmp_file):
+                    os.remove(stl_tmp_file)
+                if self.openscad_tmp_dir is not None:
+                    os.rmdir(self.tmp_dir)
 
     def _render_stl(self, stl_file):
         vertices, faces = self._conv_stl(stl_file)
@@ -212,15 +218,15 @@ class JupyterRenderer:
         faces = [f + [None, [OBJ_COLOR for i in f], None] for f in faces]
 
         # Create the geometry:
-        obj_geometry = Geometry(vertices=vertices,
+        obj_geometry = pjs.Geometry(vertices=vertices,
             faces=faces, colors = [OBJ_COLOR]*len(vertices))
         # Calculate normals per face, for nice crisp edges:
         obj_geometry.exec_three_obj_method('computeFaceNormals')
 
         # Create a mesh. Note that the material need to be told to use the vertex colors.
-        my_object_mesh = Mesh(
+        my_object_mesh = pjs.Mesh(
             geometry=obj_geometry,
-            material=MeshLambertMaterial(vertexColors='VertexColors'),
+            material=pjs.MeshLambertMaterial(vertexColors='VertexColors'),
             position=[0, 0, 0],   # Center the cube
         )
 
@@ -233,21 +239,21 @@ class JupyterRenderer:
         light_pos = [center[i] + (i+3)*max_delta for i in range(3)]
 
         # Set up a scene and render it:
-        camera = PerspectiveCamera(position=camPos, fov=20,
-                                   children=[DirectionalLight(color='#ffffff',
+        camera = pjs.PerspectiveCamera(position=camPos, fov=20,
+                                   children=[pjs.DirectionalLight(color='#ffffff',
                                    position=light_pos, intensity=0.5)])
         camera.up = (0,0,1)
 
-        scene_things = [my_object_mesh, camera, AmbientLight(color='#888888')]
+        scene_things = [my_object_mesh, camera, pjs.AmbientLight(color='#888888')]
         if self.draw_grids:
             grids, space = self._get_grids(vertices)
             scene_things.append(grids)
 
-        scene = Scene(children=scene_things, background=BACKGROUND_COLOR)
+        scene = pjs.Scene(children=scene_things, background=BACKGROUND_COLOR)
 
-        renderer_obj = Renderer(camera=camera, background='#cccc88',
+        renderer_obj = pjs.Renderer(camera=camera, background='#cccc88',
             background_opacity=0, scene=scene,
-            controls=[OrbitControls(controlling=camera)],
+            controls=[pjs.OrbitControls(controlling=camera)],
             width=self.width,
             height=self.height)
 
