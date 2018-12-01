@@ -1,0 +1,4 @@
+jupyterlab
+ipywidgets
+pythreejs
+solidpython
