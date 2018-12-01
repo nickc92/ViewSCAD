@@ -26,8 +26,8 @@ setup(
     name='jupyter_openscad',
     version='0.1.0',
     description='Jupyter renderer for the OpenSCAD & SolidPython constructive solid geometry systems',
-    author='nickc92',
-    author_email="nickc92's address",
+    author='Nick Choly',
+    author_email="nickcholy@gmail.com",
     url='https://github.com/nickc92/JupyterOpenSCAD',
     py_modules=['jupyter_openscad'],
     classifiers=[

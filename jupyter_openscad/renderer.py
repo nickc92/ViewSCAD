@@ -15,7 +15,7 @@ from IPython.display import display, SVG
 
 OBJ_COLOR = '#f7d62c'
 BACKGROUND_COLOR = '#ffffff'
-
+DEFAULT_FN = 20
 
 class JupyterRenderer:
     '''This class will render an OpenSCAD object within a jupyter notebook.
@@ -92,6 +92,7 @@ class JupyterRenderer:
         extents = []
         for i in range(3):
             coords = [vertex[i] for vertex in vertices]
+            coords.append(0.)
             extents.append([min(coords), max(coords)])
         return extents
 
@@ -144,7 +145,7 @@ class JupyterRenderer:
 
         return lines, space
 
-    def render_to_stl_file(self, py_scad_obj, fl_name, **kw):
+    def render_to_stl_file(self, openscad_str, fl_name, **kw):
         scad_prepend = ''        
         if 'dollar_sign_vars' in kw:
             for var_name, value in kw['dollar_sign_vars'].items():
@@ -157,7 +158,7 @@ class JupyterRenderer:
         try:
             of = open(scad_tmp_file, 'w')
             of.write(scad_prepend)
-            of.write(solid.scad_render(py_scad_obj))
+            of.write(openscad_str)
             of.close()
 
             # now run openscad to generate stl:
@@ -171,7 +172,19 @@ class JupyterRenderer:
             if os.path.isfile(scad_tmp_file):
                 os.remove(scad_tmp_file)        
 
-    def render(self, py_scad_obj, **kw):
+    def render(self, in_obj, **kw):
+        if 'dollar_sign_vars' not in kw:
+            kw['dollar_sign_vars'] = {'fn': DEFAULT_FN}
+        else:
+            if 'fn' not in kw['dollar_sign_vars']:
+                kw['dollar_sign_vars']['fn'] = DEFAULT_FN
+                
+        if isinstance(in_obj, solid.OpenSCADObject):
+            self.render_openscad_str(solid.scad_render(in_obj), **kw)
+        elif isinstance(in_obj, str):
+            self.render_openscad_str(in_obj, **kw)
+    
+    def render_openscad_str(self, openscad_str, **kw):
         if self.openscad_tmp_dir is not None:
             self.tmp_dir = self.openscad_tmp_dir
         else:
@@ -182,7 +195,7 @@ class JupyterRenderer:
         
         try:
             kw['rough'] = True
-            self.render_to_stl_file(py_scad_obj, stl_tmp_file, **kw)
+            self.render_to_stl_file(openscad_str, stl_tmp_file, **kw)
             self._render_stl(stl_tmp_file)
         except Exception as e:
             raise e
