@@ -1,4 +1,4 @@
-# ViewSCAD: CAD from within Jupyter
+# ViewSCAD: CAD in Jupyter
 
 ViewSCAD is a module that renders within a Jupyter notebook 3D objects described in the [OpenSCAD](https://openscad.org) language, or described using the [SolidPython](https://github.com/SolidCode/SolidPython) module.  It provides a workflow for CAD design completely within the Jupyter notebook.
 
@@ -13,7 +13,6 @@ ViewSCAD uses the `pythreejs` notebook extension to render the 3D graphics.
 If you intend to use `jupyter notebook`, you should be all set.  However, if you intend to use `jupyter lab`,  additional steps are necessary to get `pythreejs` working in the lab.  Firstly, you must install [node.js and npm](https://nodejs.org/en/download/).  Then you must install the lab extensions:
 ```
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter lab build
 ```
 
 ## Setup and Usage
