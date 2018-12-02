@@ -206,8 +206,8 @@ class Renderer:
             raise e
         finally:
             if do_tmp_file:
-                if os.path.isfile(stl_tmp_file):
-                    os.remove(stl_tmp_file)
+                if os.path.isfile(stl_out_file):
+                    os.remove(stl_out_file)
                 if self.openscad_tmp_dir is not None:
                     os.rmdir(self.tmp_dir)
 
