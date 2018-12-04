@@ -34,3 +34,7 @@ The renderer can also create an `.STL` file directly by simply adding an `outfil
 ```
 r.render(c, outfile='my_thing.stl')
 ```
+
+## Acknowledgements
+
+Thanks to Evan Jones for help creating the PyPI package.

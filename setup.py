@@ -27,11 +27,13 @@ with open('README.md') as f:
 
 setup(
     name='viewscad',
-    version='0.1.1',
+    version='0.1.3',
     description='Jupyter renderer for the OpenSCAD & SolidPython constructive solid geometry systems',
     author='Nick Choly',
     author_email="nickcholy@gmail.com",
     url='https://github.com/nickc92/ViewSCAD',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     py_modules=['viewscad'],
     classifiers=[
         "Programming Language :: Python",
