@@ -22,9 +22,12 @@ class CustomInstallCommand(install):
         install.run(self)
 #        install_jupyter_extensions()
 
+with open('README.md') as f:
+        long_description = f.read()
+
 setup(
     name='viewscad',
-    version='0.1.0',
+    version='0.1.1',
     description='Jupyter renderer for the OpenSCAD & SolidPython constructive solid geometry systems',
     author='Nick Choly',
     author_email="nickcholy@gmail.com",
