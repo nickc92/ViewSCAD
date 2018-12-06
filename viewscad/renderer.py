@@ -28,9 +28,8 @@ class Renderer:
     finding the executable itself.
     other keyword arguments: 'width', 'height', and 'draw_grids' (True/False)
     Primarily this class is used to render a SolidPython object in a Jupyter window, but it
-    also provides a method, render_to_stl_file(obj, fname), which creates an STL file
-    directly, allowing one to bypass OpenSCAD altogether, if the end goal is the creation of an
-    STL file.
+    also can be used to create a 3D object file (STL/OFF/CSG/DXF)
+    directly by calling Renderer.render(outfile='outfilename').
     '''
     def __init__(self, **kw):
         self.openscad_exec = None
@@ -145,7 +144,7 @@ class Renderer:
 
         return lines, space
 
-    def render_to_stl_file(self, openscad_str, fl_name, **kw):
+    def render_to_file(self, openscad_str, fl_name, **kw):
         scad_prepend = ''        
         if 'dollar_sign_vars' in kw:
             for var_name, value in kw['dollar_sign_vars'].items():
@@ -153,7 +152,7 @@ class Renderer:
         else:
             if not kw.get('rough', False):
                 scad_prepend += '$fn=120;\n'
-
+                
         scad_tmp_file = os.path.join(self.tmp_dir, 'tmp.scad')
         try:
             of = open(scad_tmp_file, 'w')
@@ -185,31 +184,36 @@ class Renderer:
             self.render_openscad_str(in_obj, **kw)
     
     def render_openscad_str(self, openscad_str, **kw):
+
+        if self.openscad_tmp_dir is not None:
+            self.tmp_dir = self.openscad_tmp_dir
+        else:
+            self.tmp_dir = tempfile.mkdtemp()
+        self.saved_umask = os.umask(0o077)        
+        
         do_tmp_file = True
         if 'outfile' in kw:
             do_tmp_file = False
-            stl_out_file = kw['outfile']
+            openscad_out_file = kw['outfile']
         else:
-            if self.openscad_tmp_dir is not None:
-                self.tmp_dir = self.openscad_tmp_dir
-            else:
-                self.tmp_dir = tempfile.mkdtemp()
-            self.saved_umask = os.umask(0o077)
+            openscad_out_file = os.path.join(self.tmp_dir, 'tmp.stl')            
 
-            stl_out_file = os.path.join(self.tmp_dir, 'tmp.stl')
         
         try:
-            kw['rough'] = True
-            self.render_to_stl_file(openscad_str, stl_out_file, **kw)
-            self._render_stl(stl_out_file)
+            kw['rough'] = True            
+            self.render_to_file(openscad_str, openscad_out_file, **kw)
+            if openscad_out_file.find('.stl') >= 0:
+                self._render_stl(openscad_out_file)
+            else:
+                print('No rendering if non-STL file is being created.')
         except Exception as e:
             raise e
         finally:
             if do_tmp_file:
-                if os.path.isfile(stl_out_file):
-                    os.remove(stl_out_file)
-                if self.openscad_tmp_dir is not None:
-                    os.rmdir(self.tmp_dir)
+                if os.path.isfile(openscad_out_file):
+                    os.remove(openscad_out_file)
+            if self.openscad_tmp_dir is None:
+                os.rmdir(self.tmp_dir)
 
     def _render_stl(self, stl_file):
         vertices, faces = self._conv_stl(stl_file)
