@@ -121,20 +121,67 @@ class Renderer:
         N = int(pymath.floor(max_extent / space + 2.0))
         grid_cols = []
         axis_cols = ['#ff3333', '#33ff33', '#3333ff']
+        ends = []
         for axis1 in range(3):
+            start = pymath.floor(extents[axis1][0] / space) * space
+            ends.append(start + space * N)
             for axis2 in range(3):
                 axis3 = [x for x in [0,1,2] if x not in [axis1, axis2]][0]
                 if axis1 == axis2: continue
                 delta = extents[axis1][1] - extents[axis1][0]
-                start = pymath.floor(extents[axis1][0] / space) * space
+                
                 start2 = pymath.floor(extents[axis2][0] / space) * space
                 end2 = start2 + (N - 1) * space
                 verts = self._get_grid_lines(axis1, start, space, N, axis2,
                                              start2, end2)
                 grid_verts.extend(verts)
                 grid_cols.extend([axis_cols[axis3] for vert in verts])
+                
+        # now draw the X,Y,Z labels:
+        char_width = max_extent * 0.05
+        char_lines = []
+        # X:
+        char_lines_x = []
+        char_lines_x.append([[0.0, 0.0], [1.0, 1.0]])
+        char_lines_x.append([[0.0, 1.0], [1.0, 0.0]])
+        char_lines.append(char_lines_x)
+        # Y:
+        char_lines_y = []
+        char_lines_y.append([[0.5, 0.0], [0.5, 0.5]])
+        char_lines_y.append([[0.5, 0.5], [0.0, 1.0]])
+        char_lines_y.append([[0.5, 0.5], [1.0, 1.0]])
+        char_lines.append(char_lines_y)
+        # Z:
+        char_lines_z = []
+        char_lines_z.append([[1.0, 1.0], [0.0, 1.0]])
+        char_lines_z.append([[0.0, 1.0], [1.0, 0.0]])
+        char_lines_z.append([[1.0, 0.0], [0.0, 0.0]])
+        char_lines.append(char_lines_z)
 
+        for iaxis in range(3):
+            ax1 = [0, 1, 2][iaxis]
+            ax2 = [2, 2, 1][iaxis]
+            char_lns = char_lines[iaxis]
+            segs = [[[0,0], [ends[iaxis] + char_width, 0]],
+                   [[ends[iaxis] + char_width, 0], [ends[iaxis] + 0.5 * char_width, 0.5 * char_width]],
+                   [[ends[iaxis] + char_width, 0], [ends[iaxis] + 0.5 * char_width, -0.5 * char_width]]]
+            for seg in segs:
+                for pt in seg:
+                    pt3 = [0, 0, 0]
+                    pt3[ax1] += pt[0]
+                    pt3[ax2] += pt[1]                    
+                    grid_verts.append(pt3)
+                    grid_cols.append('#000000')
 
+            for seg in char_lns:
+                for pt in seg:
+                    pt3 = [0, 0, 0]
+                    pt3[iaxis] += ends[iaxis] + 2 * char_width
+                    pt3[ax1] += pt[0] * char_width
+                    pt3[ax2] += 1.2 * (pt[1] - 0.5) * char_width
+                    grid_verts.append(pt3)
+                    grid_cols.append('#000000')
+            
         lines_geom = pjs.Geometry(vertices=grid_verts, colors =grid_cols)
         lines = pjs.LineSegments(geometry=lines_geom,
                  material=pjs.LineBasicMaterial(linewidth=5, transparent=True,
