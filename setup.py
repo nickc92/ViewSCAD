@@ -27,7 +27,7 @@ with open('README.md') as f:
 
 setup(
     name='viewscad',
-    version='0.1.5',
+    version='0.1.6',
     description='Jupyter renderer for the OpenSCAD & SolidPython constructive solid geometry systems',
     author='Nick Choly',
     author_email="nickcholy@gmail.com",
