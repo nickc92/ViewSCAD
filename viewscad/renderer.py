@@ -26,7 +26,7 @@ class Renderer:
     You can set the path with the OPENSCAD_EXEC environment variable, or with the 'openscad_exec'
     keyword in the constructor.  If these are omitted, the class makes an attempt at
     finding the executable itself.
-    other keyword arguments: 'width', 'height', and 'draw_grids' (True/False)
+    other keyword arguments: 'width', 'height', 'draw_grids' (True/False), and 'grid_lines_width' (default 1)
     Primarily this class is used to render a SolidPython object in a Jupyter window, but it
     also can be used to create a 3D object file (STL/OFF/CSG/DXF)
     directly by calling Renderer.render(outfile='outfilename').
@@ -44,6 +44,7 @@ class Renderer:
         self.width = kw.get('width', 600)
         self.height = kw.get('height', 600)
         self.draw_grids = kw.get('draw_grids', True)
+        self.grid_lines_width = kw.get('grid_lines_width', 1)
 
     def _try_executable(self, executable_path):
         if os.path.isfile(executable_path):
@@ -184,7 +185,7 @@ class Renderer:
             
         lines_geom = pjs.Geometry(vertices=grid_verts, colors =grid_cols)
         lines = pjs.LineSegments(geometry=lines_geom,
-                 material=pjs.LineBasicMaterial(linewidth=5, transparent=True,
+                 material=pjs.LineBasicMaterial(linewidth=self.grid_lines_width, transparent=True,
                  opacity=0.5, dashSize=10,
                  gapSize=10, vertexColors='VertexColors'),
                  type='LinePieces')
