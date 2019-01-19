@@ -35,6 +35,13 @@ The renderer can also create an `.STL` file directly by simply adding an `outfil
 r.render(c, outfile='my_thing.stl')
 ```
 
+### Intropection
+
+By double-clicking on a rendered object, you can select faces, edges, and vertices, and learn their indices.  This allows you
+to use several useful utilities, like `Renderer.rotate_face_down()` put orient the object with a particular face downward,
+or `Renderer.place_on()`, which lets you place one object upon another:
+![introspection example](https://github.com/nickc92/ViewSCAD/blob/master/images/introspection_example.png)
+
 ## Acknowledgements
 
 Thanks to Evan Jones for help creating the PyPI package.
