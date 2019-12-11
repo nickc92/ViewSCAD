@@ -216,6 +216,9 @@ class Renderer:
             self._try_executable(os.path.join(
                     os.environ.get('Programfiles(x86)','C:'),
                     'OpenSCAD\\openscad.exe'))
+            self._try_executable(os.path.join(
+                    os.environ.get('Programfiles','C:'),
+                    'OpenSCAD\\openscad.exe'))
 
     def _conv_stl(self, stl_file_name):
         fl = open(stl_file_name)
